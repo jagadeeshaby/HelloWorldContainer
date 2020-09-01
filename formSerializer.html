@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Serializer</title>
+</head>
+<body>
+
+<h1>Serialize Form</h1>
+
+<form id="foo-bar-baz-qux">
+    <input type="text" name="foo.bar"/>
+    <input type="text" name="foo.baz.qux"/>
+    <input type="text" name="qux"/>
+</form>
+
+<h2>Result: </h2>
+
+<button id="get-result-button" >Get Results</button>
+
+<pre id="result">
+
+</pre>
+
+<script>
+    const serializeForm  = (formId) => {
+        // check for form existence
+        if(formId && document.getElementById(formId)){
+            let serializedFormObj = {};
+            const form = document.getElementById(formId);
+            const textInputElements = [...form.querySelectorAll("input[type='text']")];
+            // if exists
+            if(textInputElements.length > 0){
+                textInputElements.forEach((elm, index) => {
+                    let elmNameArray = elm.getAttribute("name").split("."); //[foo, bar] //[foo.baz.qux]
+                    let elementValue = elm.value; // value
+                    elmNameArray.reduce((outputObj, currentKey, index) => {
+                        if(!outputObj[currentKey]){ // outputObj = *serializedFormObj // foo*
+                            outputObj[currentKey] = elmNameArray.length === index+1 ? elementValue : {}; //  { foo: {bar: "valye", baz: {}}}; // bar: value
+                        }
+                        return outputObj[currentKey]; // {*foo}
+                    }, serializedFormObj);
+                });
+
+            }else{
+                return {};
+            }
+
+            return serializedFormObj;
+        }else{
+            throw `${formId} does not exist, Please check the form Id`
+        }
+    }
+
+    document.getElementById("get-result-button").addEventListener("click", (event) =>{
+        const result = serializeForm("foo-bar-baz-qux");
+        document.getElementById("result").innerText = JSON.stringify(result,null, 2);
+    });
+
+</script>
+
+
+</body>
+</html>

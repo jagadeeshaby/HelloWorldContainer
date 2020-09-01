@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        .tab-wrapper {
+            border: 1px solid;
+            height: 100%;
+            width: 100%;
+        }
+
+        .tab-buttons-container {
+            display: flex;
+            overflow: scroll;
+            justify-content: center;
+            margin: 0.5rem 0;
+        }
+
+        .tab-buttons-container_button {
+            min-width: 100px;
+            background: green;
+            color: #fff;
+            border-radius: 3px;
+        }
+
+        .tab-buttons-container_button.active {
+            background: white;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .tab-buttons-container_button:hover {
+            opacity: 0.8;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            height: 100%;
+            overflow: auto;
+            width: 100%;
+            margin: 1rem;
+            border-radius: 0px 5px;
+            min-height: 250px;
+        }
+
+    </style>
+
+
+</head>
+
+
+<body>
+
+<div data-type="tab" class="tab-wrapper">
+    <div class="tab-buttons-container">
+        <button class="tab-buttons-container_button active" data-id="tab1"> Tab 1</button>
+        <button class="tab-buttons-container_button" data-id="tab2"> Tab 2</button>
+        <button class="tab-buttons-container_button" data-id="tab3"> Tab 3</button>
+    </div>
+    <div class="tab-content">
+    </div>
+
+</div>
+
+
+<div data-type="tab" class="tab-wrapper">
+    <div class="tab-buttons-container">
+        <button class="tab-buttons-container_button active" data-id="tab1"> Tab 1</button>
+        <button class="tab-buttons-container_button" data-id="tab2"> Tab 2</button>
+        <button class="tab-buttons-container_button" data-id="tab3"> Tab 3</button>
+    </div>
+    <div class="tab-content">
+    </div>
+
+</div>
+
+
+<div data-type="tab" class="tab-wrapper">
+    <div class="tab-buttons-container">
+        <button class="tab-buttons-container_button active" data-id="tab1"> Tab 1</button>
+        <button class="tab-buttons-container_button" data-id="tab2"> Tab 2</button>
+        <button class="tab-buttons-container_button" data-id="tab3"> Tab 3</button>
+    </div>
+    <div class="tab-content">
+    </div>
+
+</div>
+
+
+<div data-type="tab" class="tab-wrapper">
+    <div class="tab-buttons-container">
+        <button class="tab-buttons-container_button active" data-id="tab1"> Tab 1</button>
+        <button class="tab-buttons-container_button" data-id="tab2"> Tab 2</button>
+        <button class="tab-buttons-container_button" data-id="tab3"> Tab 3</button>
+    </div>
+    <div class="tab-content">
+    </div>
+
+</div>
+
+<div data-type="tab" class="tab-wrapper">
+    <div class="tab-buttons-container">
+        <button class="tab-buttons-container_button active" data-id="tab1"> Tab 1</button>
+        <button class="tab-buttons-container_button" data-id="tab2"> Tab 2</button>
+        <button class="tab-buttons-container_button" data-id="tab3"> Tab 3</button>
+    </div>
+    <div class="tab-content">
+    </div>
+
+</div>
+
+
+<script>
+
+    function tabDataProvider() {
+
+        const tabData = {
+            tab1: "Add specific examples of expected results per level\n" +
+                "Clarify on performance Vs complexity optimization\n" +
+                "Call out areas where candidate commonly have problems, or succeed\n" +
+                "Incremental approach, planning, gets better with level\n" +
+                "Differentiate WDE and FE SDE further",
+            tab2: "content 2",
+            tab3: "Add specific examples of expected results per level\n" +
+                "Clarify on performance Vs complexity optimization\n" +
+                "Call out areas where candidate commonly have problems, or succeed\n" +
+                "Incremental approach, planning, gets better with level\n" +
+                "Differentiate WDE and FE SDE further, Add specific examples of expected results per level\n" +
+                "Clarify on performance Vs complexity optimization\n" +
+                "Call out areas where candidate commonly have problems, or succeed\n" +
+                "Incremental approach, planning, gets better with level\n" +
+                "Differentiate WDE and FE SDE further, Add specific examples of expected results per level\n" +
+                "Clarify on performance Vs complexity optimization\n" +
+                "Call out areas where candidate commonly have problems, or succeed\n" +
+                "Incremental approach, planning, gets better with level\n" +
+                "Differentiate WDE and FE SDE further, Add specific examples of expected results per level\n" +
+                "Clarify on performance Vs complexity optimization\n" +
+                "Call out areas where candidate commonly have problems, or succeed\n" +
+                "Incremental approach, planning, gets better with level\n" +
+                "Differentiate WDE and FE SDE further"
+        }
+
+        function fetchData(endpoint, tabId) {
+            if (!tabData[tabId]) {
+                return fetch(endpoint).then(data => {
+                    tabData[tabId] = data;
+                    return Promise.resolve(data);
+                }).catch(() => {
+                    tabData[tabId] = "";
+                    return Promise.resolve("default data");
+                });
+            } else {
+                return Promise.resolve(tabData[tabId]);
+            }
+        };
+
+        return {
+            getTabData: (tabId) => {
+                return fetchData("/content", tabId);
+            }
+        }
+    }
+
+
+    class Tab {
+        constructor(tabContainer) {
+            this.tabContainer = tabContainer;
+            this.tabButtons = this.tabContainer.getElementsByClassName("tab-buttons-container_button");
+            this.tabButtonsContainer = this.tabContainer.getElementsByClassName("tab-buttons-container")[0];
+            this.tabContent = this.tabContainer.getElementsByClassName("tab-content")[0];
+            this.tabDataProvider = tabDataProvider();
+            this.initEvents();
+            this.updateTabContent(this.tabContainer.getElementsByClassName("tab-buttons-container_button active")[0].dataset)
+        }
+
+        toggleTabs(activeTarget) {
+            [...this.tabButtons].forEach((target) => target.className = "tab-buttons-container_button")
+            activeTarget.className += " active"
+        }
+
+        updateTabContent(data) {
+            this.tabContent.innerText = "Loading..."
+            this.tabDataProvider.getTabData(data.id).then(data => {
+                this.tabContent.innerText = data;
+            });
+        }
+
+        initEvents() {
+            this.tabButtonsContainer.addEventListener("click", (event) => {
+                if (event.target.tagName === "BUTTON") {
+                    this.toggleTabs(event.target);
+                    this.updateTabContent(event.target.dataset);
+                }
+
+            })
+        }
+    }
+
+
+    [...document.querySelectorAll("[data-type='tab']")].forEach((tab) => {
+        new Tab(tab);
+    });
+
+</script>
+
+
+</body>
+</html>
